@@ -73,7 +73,9 @@ struct Game {
     float x,y,z;
     VAO* object;
     float height,width,radius,depth;
-    float angle;
+    float anglex;
+    float angley;
+    float anglez;
     int status;
     float numx;
     float numy;
@@ -82,19 +84,19 @@ map <string, Game> tiles;
 map <string, Game> background;
 map <string, Game> cube;
 
-int gamemap[12][12]={
-    {0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,1,1,1,1,1,0,1,1,0,0,0},
-    {0,0,0,0,1,1,1,1,1,0,0,0},
-    {0,0,0,1,1,1,1,0,0,0,0,0},
-    {0,0,0,0,1,1,0,0,0,0,0,0},
-    {0,0,0,0,1,1,0,0,0,0,0,0},
-    {0,0,0,0,1,1,0,0,0,0,0,0},
-    {0,0,0,0,1,1,1,1,0,0,0,0},
-    {0,0,0,0,0,0,1,1,0,0,0,0},
-    {0,0,0,0,1,1,1,1,1,0,0,0},
-    {0,0,0,1,1,1,1,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0},
+int gamemap[12][17]={
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0},
+    {0,0,0,0,1,0,1,1,0,0,0,0,0,2,1,0,0},
+    {0,0,0,0,1,1,1,0,0,0,0,0,0,2,1,1,0},
+    {0,0,0,0,0,0,0,0,2,1,4,0,0,1,1,1,0},
+    {0,0,0,1,0,0,0,0,2,2,5,0,0,3,0,1,0},
+    {0,0,1,1,2,0,0,0,2,2,5,0,0,3,0,1,0},
+    {0,2,2,2,2,0,0,0,1,1,1,0,0,1,1,1,0},
+    {0,2,2,2,1,2,1,2,2,6,2,0,0,1,1,3,0},
+    {0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,3,0},
+    {0,0,2,1,2,2,2,0,0,2,2,2,2,1,3,3,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 
 struct GLMatrices {
@@ -292,157 +294,134 @@ void draw3DObject (struct VAO* vao)
 
 float rectangle_rot_dir = 1;
 bool rectangle_rot_status = true;
-
+int up1=0,down1=0,right1=0,left1=0;
+float eye_x,eye_y,eye_z;
+float target_x,target_y,target_z;
+int camera_follow=0;
+int camera_follow_adjust=0;
+int camera_top=0;
+int camera_fps=0;
+float camera_radius;
+float camera_fov=1.3;
+float fps_head_offset=0;
+float fps_head_offset_x=0;
+int camera_tower=1;
+int camera_helicopter=0;
+int camera_self=0;
+int orient_right=0;
+int orient_left=0;
+int orient_forward=0;
+int orient_backward=0;
+int mouse_click=0,right_mouse_click=0;
+int keyboard_press=0;
+double mouse_pos_x, mouse_pos_y;
+double prev_mouse_pos_x,prev_mouse_pos_y;
+int bridge=0,bridge1=0;
+int roundi=0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
+
+/* Executed when window is resized to 'width' and 'height' */
+/* Modify the bounds of the screen here in glm::ortho or Field of View in glm::Perspective */
+void reshapeWindow (GLFWwindow* window, int width, int height)
+{
+    int fbwidth=width, fbheight=height;
+    glfwGetFramebufferSize(window, &fbwidth, &fbheight);
+
+    GLfloat fov = M_PI/2;
+
+    // sets the viewport of openGL renderer
+    glViewport (0, 0, (GLsizei) fbwidth, (GLsizei) fbheight);
+
+    // Store the projection matrix in a variable for future use
+    // Perspective projection for 3D views
+    Matrices.projection = glm::perspective(fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
+
+    // Ortho projection for 2D views
+    //Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
+}
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // Function is called first on GLFW_PRESS.
 
     if (action == GLFW_RELEASE) {
         switch (key) {
-	case GLFW_KEY_C:
-	    rectangle_rot_status = !rectangle_rot_status;
-	    break;
-	case GLFW_KEY_P:
-	    break;
-	case GLFW_KEY_X:
-	    // do something ..
-	    break;
     case GLFW_KEY_UP:
-        if(cube["cube1"].y==cube["cube2"].y)
+        if(left1==0 && right1==0 && up1==0 && down1==0)
         {
-            if(cube["cube1"].x>cube["cube2"].x)
-            {
-                cube["cube2"].y=2.5;
-                cube["cube2"].x=cube["cube1"].x;
-            }
-            else if(cube["cube1"].x<cube["cube2"].x)
-            {
-                cube["cube1"].y=2.5;
-                cube["cube1"].x=cube["cube2"].x;
-            }
-            else
-            {
-                cube["cube1"].x+=2;
-                cube["cube2"].x+=2;
-            }
-        }
-        else
-        {
-            if(cube["cube1"].y>cube["cube2"].y)
-            {
-                cube["cube1"].x+=2;
-                cube["cube1"].y=cube["cube2"].y;
-            }
-            else
-            {
-                cube["cube2"].x+=2;
-                cube["cube2"].y=cube["cube1"].y;
-            }
+            up1=1;
+            down1=0;
+            right1=0;
+            left1=0;
         }
         break;
     case GLFW_KEY_DOWN:
-        if(cube["cube1"].y==cube["cube2"].y)
+        if(left1==0 && right1==0  && up1==0  && down1==0)
         {
-            if(cube["cube1"].x>cube["cube2"].x)
-            {
-                cube["cube1"].y=2.5;
-                cube["cube1"].x=cube["cube2"].x;
-            }
-            else if(cube["cube1"].x<cube["cube2"].x)
-            {
-                cube["cube2"].y=2.5;
-                cube["cube2"].x=cube["cube1"].x;
-            }
-            else
-            {
-                cube["cube1"].x-=2;
-                cube["cube2"].x-=2;  
-            }
-        }
-        else
-        {
-            if(cube["cube1"].y>cube["cube2"].y)
-            {
-                cube["cube1"].x-=2;
-                cube["cube1"].y=cube["cube2"].y;
-            }
-            else
-            {
-                cube["cube2"].x-=2;
-                cube["cube2"].y=cube["cube1"].y;
-            }
+            down1=1;
+            up1=0;
+            right1=0;
+            left1=0;
         }
         break;
     case GLFW_KEY_LEFT:
-        if(cube["cube1"].y==cube["cube2"].y)
+        if(left1==0 && right1==0 && up1==0 && down1==0)
         {
-            if(cube["cube1"].z>cube["cube2"].z)
-            {
-                cube["cube1"].y=2.5;
-                cube["cube1"].z=cube["cube2"].z;
-            }
-            else if(cube["cube1"].z<cube["cube2"].z)
-            {
-                cube["cube2"].y=2.5;
-                cube["cube2"].z=cube["cube1"].z;
-            }
-            else
-            {
-                cube["cube1"].z-=2;
-                cube["cube2"].z-=2;
-            }
-        }
-        else
-        {
-            if(cube["cube1"].y>cube["cube2"].y)
-            {
-                cube["cube1"].z-=2;
-                cube["cube1"].y=cube["cube2"].y;
-            }
-            else
-            {
-                cube["cube2"].z-=2;
-                cube["cube2"].y=cube["cube1"].y;
-            }
+            right1=0;
+            left1=1;
+            up1=0;
+            down1=0;
         }
         break;
     case GLFW_KEY_RIGHT:
-        if(cube["cube1"].y==cube["cube2"].y)
+        if(left1==0 && right1==0 && up1==0 && down1==0)
         {
-            if(cube["cube1"].z>cube["cube2"].z)
-            {
-                cube["cube2"].y=2.5;
-                cube["cube2"].z=cube["cube1"].z;
-            }
-            else if(cube["cube1"].z<cube["cube2"].z)
-            {
-                cube["cube1"].y=2.5;
-                cube["cube1"].z=cube["cube2"].z;
-            }
-            else
-            {
-                cube["cube1"].z+=2;
-                cube["cube2"].z+=2;
-                cube["cube1"].angle+=90;
-                cube["cube1"].angle+=90;
-            }
-        }
-        else
-        {
-            if(cube["cube1"].y>cube["cube2"].y)
-            {
-                cube["cube2"].z+=2;
-                cube["cube1"].y=cube["cube2"].y;
-            }
-            else
-            {
-                cube["cube1"].z+=2;
-                cube["cube2"].y=cube["cube1"].y;
-            }
+            right1=1;
+            left1=0;
+            up1=0;
+            down1=0;
         }
         break;
+    case GLFW_KEY_T:
+        camera_top=1;
+        camera_follow=0;
+        camera_fps=0;
+        camera_tower=0;
+        camera_self=0;
+        camera_helicopter=0;
+        break;
+    case GLFW_KEY_R:
+        camera_top=0;
+        camera_follow=0;
+        camera_fps=0;
+        camera_tower=1;
+        camera_self=0;
+        camera_helicopter=0;
+        break;
+    case GLFW_KEY_F:
+        camera_top=0;
+        camera_follow=1;
+        camera_fps=0;
+        camera_tower=0;
+        camera_self=0;
+        camera_helicopter=0;
+        break;
+    case GLFW_KEY_P:
+        camera_top=0;
+        camera_follow=0;
+        camera_fps=0;
+        camera_tower=0;
+        camera_self=0;
+        camera_helicopter=1;
+        break;
+ case GLFW_KEY_I:
+    camera_top=0;
+    camera_follow=0;
+    camera_fps=0;
+    camera_tower=0;
+    camera_self=1;
+    camera_helicopter=0;
+    break;
 	default:
 	    break;
         }
@@ -467,16 +446,40 @@ void keyboardChar (GLFWwindow* window, unsigned int key)
 	quit(window);
 	break;
     case 'a':
-	rect_pos.x -= 0.1;
+	   if(camera_follow==1 || camera_self==1)
+       {
+            orient_left=1;
+            orient_right=0;
+            orient_backward=0;
+            orient_forward=0;
+       }
 	break;
     case 'd':
-	rect_pos.x += 0.1;
+    	if(camera_follow==1 ||  camera_self==1)
+           {
+                orient_left=0;
+                orient_right=1;
+                orient_backward=0;
+                orient_forward=0;
+           }
 	break;
     case 'w':
-	rect_pos.y += 0.1;
+	   if(camera_follow==1 ||camera_self==1)
+       {
+            orient_left=0;
+            orient_right=0;
+            orient_backward=0;
+            orient_forward=1;
+       }
 	break;
     case 's':
-	rect_pos.y -= 0.1;
+        if(camera_follow==1 || camera_self==1)
+       {
+            orient_left=0;
+            orient_right=0;
+            orient_backward=1;
+            orient_forward=0;
+       }
 	break;
     case 'r':
 	rect_pos.z -= 0.1;
@@ -520,35 +523,33 @@ void keyboardChar (GLFWwindow* window, unsigned int key)
 void mouseButton (GLFWwindow* window, int button, int action, int mods)
 {
     switch (button) {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        if(action == GLFW_PRESS)
+        {
+            mouse_click=1;
+            keyboard_press=0;
+            right_mouse_click=0;
+        }
+        if(action == GLFW_RELEASE)
+        {
+            mouse_click=0;
+        }
+        break;
     case GLFW_MOUSE_BUTTON_RIGHT:
-	if (action == GLFW_RELEASE) {
-	    rectangle_rot_dir *= -1;
-	}
-	break;
+        if(action == GLFW_PRESS)
+        {
+            right_mouse_click=1;
+            keyboard_press=0;
+            mouse_click=0;
+        }
+	    if(action == GLFW_RELEASE) 
+        {
+	       right_mouse_click=0;
+	    }
+	   break;
     default:
 	break;
     }
-}
-
-
-/* Executed when window is resized to 'width' and 'height' */
-/* Modify the bounds of the screen here in glm::ortho or Field of View in glm::Perspective */
-void reshapeWindow (GLFWwindow* window, int width, int height)
-{
-    int fbwidth=width, fbheight=height;
-    glfwGetFramebufferSize(window, &fbwidth, &fbheight);
-
-    GLfloat fov = M_PI/2;
-
-    // sets the viewport of openGL renderer
-    glViewport (0, 0, (GLsizei) fbwidth, (GLsizei) fbheight);
-
-    // Store the projection matrix in a variable for future use
-    // Perspective projection for 3D views
-    Matrices.projection = glm::perspective(fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
-
-    // Ortho projection for 2D views
-    //Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
 VAO *rectangle, *cam, *floor_vao;
@@ -601,42 +602,55 @@ void createRectangle (string name, float angle, COLOR color,COLOR color2,COLOR c
     };
 
     static const GLfloat color_buffer_data [] = {
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 1.0f, 0.0f,	
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6
+
+
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6
+
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6
+        
+
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6
+        
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6
+        
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b, // color 6=
     };
 
     // create3DObject creates and returns a handle to a VAO that can be used later
@@ -652,7 +666,9 @@ void createRectangle (string name, float angle, COLOR color,COLOR color2,COLOR c
     InstanceGame.width=width;
     InstanceGame.depth=depth;
     InstanceGame.radius=(sqrt(height*height+width*width+depth*depth))/2;
-    InstanceGame.angle=angle;
+    InstanceGame.anglex=angle;
+    InstanceGame.angley=angle;
+    InstanceGame.anglez=angle;
     InstanceGame.status=status;
     InstanceGame.numx=numx;
     InstanceGame.numy=numy;
@@ -711,26 +727,105 @@ void createtile (string name, float angle, COLOR color,COLOR color2,COLOR color3
     // GL3 accepts only Triangles. Quads are not supported
     float w=width/2,h=height/2,d=depth/2;
     GLfloat vertex_buffer_data [] = {
-        -w,-h,d, // vertex 1
+        /*-w,-h,d, // vertex 1
         w,-h,d, // vertex 2
         -w,-h,-d, // vertex 3
         -w,-h,-d, // vertex 3
         w,-h,d, // vertex 4
-        w,-h,-d  // vertex 1
+        w,-h,-d  // vertex 1*/
+        -w, h, d,
+        -w, -h, d, 
+        w, -h, d,
+        -w, h, d, 
+        w, -h, d,
+        w, h, d,
+        w, h, d,
+        w, -h, d,
+        w, -h, -d,
+        w, h, d,
+        w, -h, -d,
+        w, h, -d,
+        w, h, -d,
+        w, -h, -d,
+        -w, -h, -d,
+        w, h, -d,
+        -w, -h, -d,
+        -w, h, -d,
+        -w, h, -d,
+        -w, -h, -d,
+        -w, -h, d, 
+        -w, h, -d,
+        -w, -h, d, 
+        -w, h, d, 
+        -w, h, -d,
+        -w, h, d, 
+        w, h, d,
+        -w, h, -d,
+        w, h, d,
+        w, h, -d,
+        -w, -h, d, 
+        -w, -h, -d,
+        w, -h, -d,
+        -w, -h, d, 
+        w, -h, -d,
+        w, -h, d,
+        -w, h, d,
+        w, h, -d,
+        w, h, -d,
     };
 
     GLfloat color_buffer_data [] = {
+        color4.r,color4.g,color4.b, // color 1
+        color4.r,color4.g,color4.b, // color 2
+        color4.r,color4.g,color4.b, // color 3
+
+        color4.r,color4.g,color4.b, // color 4
+        color4.r,color4.g,color4.b, // color 5
+        color4.r,color4.g,color4.b, // color 6
+
+        color4.r,color4.g,color4.b, // color 1
+        color4.r,color4.g,color4.b, // color 2
+        color4.r,color4.g,color4.b, // color 3
+
+        color4.r,color4.g,color4.b, // color 4
+        color4.r,color4.g,color4.b, // color 5
+        color4.r,color4.g,color4.b, // color 6
+
+        color4.r,color4.g,color4.b, // color 1
+        color4.r,color4.g,color4.b, // color 2
+        color4.r,color4.g,color4.b, // color 3
+
+        color4.r,color4.g,color4.b, // color 4
+        color4.r,color4.g,color4.b, // color 5
+        color4.r,color4.g,color4.b, // color 6
+
+        color4.r,color4.g,color4.b, // color 1
+        color4.r,color4.g,color4.b, // color 2
+        color4.r,color4.g,color4.b, // color 3
+
+        color4.r,color4.g,color4.b, // color 4
+        color4.r,color4.g,color4.b, // color 5
+        color4.r,color4.g,color4.b, // color 6
+
         color.r,color.g,color.b, // color 1
         color2.r,color2.g,color2.b, // color 2
         color3.r,color3.g,color3.b, // color 3
 
         color3.r,color3.g,color3.b, // color 4
         color4.r,color4.g,color4.b, // color 5
-        color.r,color.g,color.b // color 6
+        color.r,color.g,color.b, // color 6
+
+        color.r,color.g,color.b, // color 1
+        color2.r,color2.g,color2.b, // color 2
+        color3.r,color3.g,color3.b, // color 3
+
+        color3.r,color3.g,color3.b, // color 4
+        color4.r,color4.g,color4.b, // color 5
+        color.r,color.g,color.b, // color 6
     };
 
     // create3DObject creates and returns a handle to a VAO that can be used later
-    VAO *tile = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+    VAO *tile = create3DObject(GL_TRIANGLES, 12*3, vertex_buffer_data, color_buffer_data, GL_FILL);
     Game InstanceGame = {};
     InstanceGame.color = color;
     InstanceGame.name = name;
@@ -742,7 +837,7 @@ void createtile (string name, float angle, COLOR color,COLOR color2,COLOR color3
     InstanceGame.width=width;
     InstanceGame.depth=depth;
     InstanceGame.radius=(sqrt(height*height+width*width+depth*depth))/2;
-    InstanceGame.angle=angle;
+    InstanceGame.anglex=angle;
     InstanceGame.status=status;
     InstanceGame.numx=numx;
     InstanceGame.numy=numy;
@@ -753,14 +848,20 @@ void createtile (string name, float angle, COLOR color,COLOR color2,COLOR color3
 }
 
 float camera_rotation_angle = 90;
-
+int toggle=0;
+int toggle1=0;
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
-void draw (GLFWwindow* window,int doM, int doV, int doP)
+float angle;
+int rep=0,fl=0;
+glm::mat4 rotateTriangle2;
+glm::mat4 rotateTriangle1;
+void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, int doP)
 {
-    //int fbwidth, fbheight;
-    //glfwGetFramebufferSize(window, &fbwidth, &fbheight);
-    //glViewport((int)(x*fbwidth), (int)(y*fbheight), (int)(w*fbwidth), (int)(h*fbheight));
+
+    int fbwidth, fbheight;
+    glfwGetFramebufferSize(window, &fbwidth, &fbheight);
+    glViewport((int)(x*fbwidth), (int)(y*fbheight), (int)(w*fbwidth), (int)(h*fbheight));
 
 
     // use the loaded shader program
@@ -768,10 +869,158 @@ void draw (GLFWwindow* window,int doM, int doV, int doP)
     glUseProgram(programID);
 
     // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye(-4,12,-4);
+    /*camera_radius=1;
+    angle=90;
+    target_x=0;
+    target_y=0;
+    target_z=0;
+    eye_x=-4;
+    eye_y=12;
+    eye_z=-4;*/
+    float temp1,temp2,temp3;
+    temp1= (cube["cube1"].x+cube["cube2"].x)/2;
+    temp2 = (cube["cube1"].y+cube["cube2"].y)/2;
+    temp3 = (cube["cube1"].z+cube["cube2"].z)/2;
+    if(camera_top==1)
+    {
+        eye_x = 0+cos(45*M_PI/180);
+        eye_z = 0;
+        //+sin(45*M_PI/180);
+        eye_y=20;
+        target_x=0;
+        target_y=0;
+        target_z=0;
+        /*eye_x = temp1;
+        eye_z = temp3;
+        eye_y= 10;
+        target_x = temp1;
+        target_y = 0;
+        target_z = temp3;*/
+        //fps_head_offset=0;
+        //fps_head_offset_x=0;
+        //camera_fov=1.3;
+    }
+    if(camera_tower==1)
+    {
+        eye_x = 15,
+        eye_y = 15;
+        eye_z = 0;
+        target_z = 0;
+        target_y = 0;
+        target_x = 0;    
+    }
+    if(camera_follow==1)
+    {
+        if(orient_left==1)
+        {
+            eye_x = temp1-5;
+            eye_y = temp2;
+            eye_z = temp3;
+            target_x = 1000;
+            target_y = temp2;
+            target_z = temp3;
+        }
+        else if(orient_right==1)
+        {
+            eye_x = temp1+5;
+            eye_y = temp2;
+            eye_z = temp3;
+            target_x = -1000;
+            target_y = temp2;
+            target_z = temp3;
+        }
+        else if(orient_backward==1)
+        {
+            eye_x = temp1;
+            eye_y = temp2;
+            eye_z = temp3+5;
+            target_x = temp1;
+            target_y = temp2;
+            target_z = -1000;
+        }
+        else
+        {
+            eye_x = temp1;
+            eye_y = temp2;
+            eye_z = temp3-5;
+            target_x = temp1;
+            target_y = temp2;
+            target_z = 1000;
+        }
+    }
+    if(camera_self==1)
+    {
+        if(orient_left==1)
+        {
+            eye_x = temp1-3;
+            eye_y = temp2;
+            eye_z = temp3;
+            target_x = -1000;
+            target_y = temp2;
+            target_z = temp3;
+        }
+        else if(orient_right==1)
+        {
+            eye_x = temp1+3;
+            eye_y = temp2;
+            eye_z = temp3;
+            target_x = 1000;
+            target_y = temp2;
+            target_z = temp3;
+        }
+        else if(orient_backward==1)
+        {
+            eye_x = temp1;
+            eye_y = temp2;
+            eye_z = temp3-3;
+            target_x = temp1;
+            target_y = temp2;
+            target_z = -1000;
+        }
+        else
+        {
+            eye_x = temp1;
+            eye_y = temp2;
+            eye_z = temp3+3;
+            target_x = temp1;
+            target_y = temp2;
+            target_z = 1000;
+        }
+    }
+    glfwGetCursorPos(window, &mouse_pos_x, &mouse_pos_y);
+    if(camera_helicopter==1)
+    {
+        if(mouse_click==1)
+        {
+            angle=(mouse_pos_x)*360/600;
+            eye_x = 20*cos(angle*M_PI/180);
+            eye_z = 20*sin(angle*M_PI/180);
+            target_x = 0;
+            target_z = 0;
+            target_y = 0;
+        }
+        if(right_mouse_click==1)
+        {
+            angle = 90-(mouse_pos_y)*90/600;
+            eye_y = 20*sin(angle*M_PI/180);
+            target_x = 0;
+            target_z = 0;
+            target_y = 0;
+        }
+    }
+    prev_mouse_pos_x = mouse_pos_x;
+    prev_mouse_pos_y = mouse_pos_y;
+    if(camera_self==0 && camera_follow==0)
+    {
+        orient_forward=1;
+        orient_right=0;
+        orient_left=0;
+        orient_backward=0;
+    }
+    glm::vec3 eye(eye_x,eye_y,eye_z);
     //glm::vec3 eye ( 8*sin(camera_rotation_angle*M_PI/180.0f), 3, 8*sin(camera_rotation_angle*M_PI/180.0f) );
     // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target (0, 0, 0);
+    glm::vec3 target (target_x,target_y,target_z);
     // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
     glm::vec3 up (0, 1, 0);
 
@@ -794,7 +1043,6 @@ void draw (GLFWwindow* window,int doM, int doV, int doP)
 
     // Load identity to model matrix
     Matrices.model = glm::mat4(1.0f);
-
     /*glm::mat4 translateRectangle = glm::translate (rect_pos);        // glTranslatef
     glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1));
     Matrices.model *= (translateRectangle * rotateRectangle);
@@ -823,44 +1071,406 @@ void draw (GLFWwindow* window,int doM, int doV, int doP)
     draw3DObject(cam);*/
     
     //createtile("tile",0,brown1,brown1,brown1,brown1,0,0,0,0.5,0.5,0.5,"tile",0,0,0);
-    if(gamemap[int(cube["cube1"].x/2)+3][int(cube["cube1"].z/2)+3]==0)
+    /*if(gamemap[int(cube["cube1"].x/2)+3][int(cube["cube1"].z/2)+3]==0)
     {
         quit(window);
     }
     if(gamemap[int(cube["cube2"].x/2)+3][int(cube["cube2"].z/2)+3]==0)
     {
         quit(window);
+    }*/
+    if(down1==1)
+    {
+        float ch1,ch2;
+        ch1=cube["cube1"].y;
+        ch2=cube["cube2"].y;
+        if(ch1==ch2)
+        {
+            fl=1;
+        }
+        if(fl==1)
+        {
+            if(cube["cube1"].x>cube["cube2"].x)
+            {
+                //cube["cube2"].y=2.5;
+                //cube["cube2"].x=cube["cube1"].x;
+                cube["cube2"].x+=0.4;
+                cube["cube1"].x+=0.2;
+                cube["cube2"].y+=0.2;
+            }
+            else if(cube["cube1"].x<cube["cube2"].x)
+            {
+                cube["cube1"].y+=0.2;
+                //cube["cube1"].x=cube["cube2"].x;
+                cube["cube2"].x+=0.2;
+                cube["cube1"].x+=0.4;
+            }
+            else
+            {
+                cube["cube1"].x+=0.2;
+                cube["cube2"].x+=0.2;
+                cube["cube1"].x=cube["cube2"].x;
+            }
+        }
+        else
+        {
+            if(cube["cube1"].y>cube["cube2"].y)
+            {
+                cube["cube1"].x+=0.4;
+                cube["cube2"].x+=0.2;
+                cube["cube1"].y-=0.2;
+                //cube["cube1"].y=cube["cube2"].y;
+
+            }
+            else
+            {
+                cube["cube2"].x+=0.4;
+                cube["cube1"].x+=0.2;
+                cube["cube2"].y-=0.2;
+                //cube["cube2"].y=cube["cube1"].y;
+            }
+        }
+        cube["cube1"].anglez-=9;
+        cube["cube2"].anglez-=9;
+        rotateTriangle1 = glm::rotate((float)(((cube["cube1"].anglez))*M_PI/180.0f), glm::vec3(0,0,1));
+        //rotateTriangle2 = glm::rotate((float)(((cube["cube1"].anglex))*M_PI/180.0f), glm::vec3(1,0,0));
+        rep++;
+        if(rep==10)
+        {
+            rep=0;
+            down1=0;
+            roundi=1;
+            if(fl==0)
+            {
+                cube["cube1"].y=cube["cube2"].y;
+            }
+            if(fl==1)
+            {
+                cube["cube1"].x=cube["cube2"].x;
+            }
+            fl=0;
+        }
     }
-    for(map<string,Game>::iterator it=tiles.begin();it!=tiles.end();it++){
+    if(up1==1)
+    {
+        if(cube["cube1"].y==cube["cube2"].y)
+        {
+            fl=1;
+        }
+        if(fl==1)
+        {
+            if(cube["cube1"].x>cube["cube2"].x)
+            {
+                //cube["cube2"].y=2.5;
+                //cube["cube2"].x=cube["cube1"].x;
+                cube["cube2"].x-=0.2;
+                cube["cube1"].x-=0.4;
+                cube["cube1"].y+=0.2;
+            }
+            else if(cube["cube1"].x<cube["cube2"].x)
+            {
+                cube["cube2"].y+=0.2;
+                //cube["cube1"].x=cube["cube2"].x;
+                cube["cube1"].x-=0.2;
+                cube["cube2"].x-=0.4;
+            }
+            else
+            {
+                cube["cube1"].x-=0.2;
+                cube["cube2"].x-=0.2;
+                cube["cube1"].x=cube["cube2"].x;
+            }
+        }
+        else
+        {
+            if(cube["cube1"].y>cube["cube2"].y)
+            {
+                cube["cube1"].x-=0.4;
+                cube["cube2"].x-=0.2;
+                cube["cube1"].y-=0.2;
+                //cube["cube1"].y=cube["cube2"].y;
+
+            }
+            else
+            {
+                cube["cube2"].x-=0.4;
+                cube["cube1"].x-=0.2;
+                cube["cube2"].y-=0.2;
+                //cube["cube2"].y=cube["cube1"].y;
+            }
+        }
+        cube["cube1"].anglez+=9;
+        cube["cube2"].anglez+=9;
+        rotateTriangle1 = glm::rotate((float)(((cube["cube1"].anglez))*M_PI/180.0f), glm::vec3(0,0,1));
+        //rotateTriangle2 = glm::rotate((float)(((cube["cube1"].anglex))*M_PI/180.0f), glm::vec3(1,0,0));
+        rep++;
+        if(rep==10)
+        {
+            rep=0;
+            roundi=1;
+            up1=0;
+            if(fl==0)
+            {
+                cube["cube1"].y=cube["cube2"].y;
+            }
+            if(fl==1)
+            {
+                cube["cube1"].x=cube["cube2"].x;
+            }
+            fl=0;
+        }
+    }
+    if(left1==1)
+    {
+        if(cube["cube1"].y==cube["cube2"].y)
+        {
+            fl=1;
+        }
+        if(fl==1)
+        {
+            if(cube["cube1"].z>cube["cube2"].z)
+            {
+                //cube["cube2"].y=2.5;
+                //cube["cube2"].x=cube["cube1"].x;
+                cube["cube2"].z+=0.4;
+                cube["cube1"].z+=0.2;
+                cube["cube2"].y+=0.2;
+            }
+            else if(cube["cube1"].z<cube["cube2"].z)
+            {
+                cube["cube1"].y+=0.2;
+                //cube["cube1"].x=cube["cube2"].x;
+                cube["cube1"].z+=0.4;
+                cube["cube2"].z+=0.2;
+            }
+            else
+            {
+                cube["cube1"].z+=0.2;
+                cube["cube2"].z+=0.2;
+                cube["cube1"].z=cube["cube2"].z;
+            }
+        }
+        else
+        {
+            if(cube["cube1"].y>cube["cube2"].y)
+            {
+                cube["cube1"].z+=0.4;
+                cube["cube2"].z+=0.2;
+                cube["cube1"].y-=0.2;
+                //cube["cube1"].y=cube["cube2"].y;
+
+            }
+            else
+            {
+                cube["cube2"].z+=0.4;
+                cube["cube1"].z+=0.2;
+                cube["cube2"].y-=0.2;
+                //cube["cube2"].y=cube["cube1"].y;
+            }
+        }
+        cube["cube1"].anglex+=9;
+        cube["cube2"].anglex+=9;
+        rotateTriangle1 = glm::rotate((float)(((cube["cube1"].anglex))*M_PI/180.0f), glm::vec3(1,0,0));
+        //rotateTriangle2 = glm::rotate((float)(((cube["cube1"].anglez))*M_PI/180.0f), glm::vec3(1,0,0));
+        rep++;
+        if(rep==10)
+        {
+            rep=0;
+            roundi=1;
+            left1=0;
+            if(fl==0)
+            {
+                cube["cube1"].y=cube["cube2"].y;
+            }
+            if(fl==1)
+            {
+                cube["cube1"].z=cube["cube2"].z;
+            }
+            fl=0;
+        }
+    }
+    if(right1==1)
+    {
+        if(cube["cube1"].y==cube["cube2"].y)
+        {
+            fl=1;
+        }
+        if(fl==1)
+        {
+            if(cube["cube1"].z>cube["cube2"].z)
+            {
+                cube["cube1"].z-=0.4;
+                cube["cube2"].z-=0.2;
+                cube["cube1"].y+=0.2;
+            }
+            else if(cube["cube1"].z<cube["cube2"].z)
+            {
+                cube["cube2"].y+=0.2;
+                //cube["cube1"].x=cube["cube2"].x;
+                cube["cube2"].z-=0.4;
+                cube["cube1"].z-=0.2;
+            }
+            else
+            {
+                cube["cube1"].z-=0.2;
+                cube["cube2"].z-=0.2;
+                cube["cube1"].z=cube["cube2"].z;
+            }
+        }
+        else
+        {
+            if(cube["cube1"].y>cube["cube2"].y)
+            {
+                cube["cube1"].z-=0.4;
+                cube["cube2"].z-=0.2;
+                cube["cube1"].y-=0.2;
+                //cube["cube1"].y=cube["cube2"].y;
+
+            }
+            else
+            {
+                cube["cube2"].z-=0.4;
+                cube["cube1"].z-=0.2;
+                cube["cube2"].y-=0.2;
+                //cube["cube2"].y=cube["cube1"].y;
+            }
+        }
+        cube["cube1"].anglex-=9;
+        cube["cube2"].anglex-=9;
+        rotateTriangle1 = glm::rotate((float)(((cube["cube1"].anglex))*M_PI/180.0f), glm::vec3(1,0,0));
+        //rotateTriangle2 = glm::rotate((float)(((cube["cube1"].anglez))*M_PI/180.0f), glm::vec3(1,0,0));
+        rep++;
+        if(rep==10)
+        {
+            rep=0;
+            roundi=1;
+            right1=0;
+            if(fl==0)
+            {
+                cube["cube1"].y=cube["cube2"].y;
+            }
+            if(fl==1)
+            {
+                cube["cube1"].z=cube["cube2"].z;
+            }
+            fl=0;
+        }
+    }
+    if(roundi==1)
+    {
+        if(0.5>cube["cube1"].x && cube["cube1"].x>=-0.5)
+        {
+            cube["cube1"].x=0;
+        }
+        else
+        {
+            cube["cube1"].x=roundf(cube["cube1"].x);
+        }
+        if(0.5>cube["cube1"].y && cube["cube1"].y>=-0.5)
+        {
+            //cube["cube1"].y=0;
+        }
+        else
+        {
+            //cube["cube1"].y=roundf(cube["cube1"].y);
+        }
+        if(0.5>cube["cube1"].z && cube["cube1"].z>=-0.5)
+        {
+            cube["cube1"].z=0;
+        }
+        else
+        {
+            cube["cube1"].z=roundf(cube["cube1"].z);
+        }
+        if(0.5>cube["cube2"].x && cube["cube2"].x>=-0.5)
+        {
+            cube["cube2"].x=0;
+        }
+        else
+        {
+            cube["cube2"].x=roundf(cube["cube2"].x);
+        }
+        if(0.5>cube["cube2"].y && cube["cube2"].y>=-0.5)
+        {
+            //cube["cube2"].y=0;
+        }
+        else
+        {
+            //cube["cube2"].y=roundf(cube["cube2"].y);
+        }
+        if(0.5>cube["cube2"].z && cube["cube2"].z>=-0.5)
+        {
+            cube["cube2"].z=0;
+        }
+        else
+        {
+            cube["cube2"].z=roundf(cube["cube2"].z);
+        }
+        roundi=0;
+        if(cube["cube1"].y!=cube["cube2"].y)
+        {
+            if(cube["cube1"].y<cube["cube2"].y)
+            {
+                if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==2)
+                {
+                    quit(window);
+                }
+            }
+            else
+            {
+                if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==2)
+                {
+                    quit(window);
+                }
+            }
+        }
+    }
+    if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==6 || gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==6)
+    {
+        if(bridge1==0 && toggle==0)
+        {
+            bridge1=1;
+            toggle=1;
+        }
+        if(bridge1==1 && toggle==0)
+        {
+            bridge1=0;
+            toggle=1;
+        }
+    }
+    if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]!=6 && gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]!=6)
+    {
+        toggle=0;
+    }
+    //cout<<cube["cube1"].x<<" "<<cube["cube1"].z<<" "<<cube["cube2"].x<<" "<<cube["cube2"].z<<endl;
+    //cout<<gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]<<" "<<gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]<<endl;
+    if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==4 || gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==4)
+    {
+
+        if(bridge==0 && toggle1==0)
+        {
+            bridge=1;
+            toggle1=1;
+        }
+        if(bridge==1 && toggle1==0)
+        {
+            bridge=0;
+            toggle1=1;
+        }
+    }
+    if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]!=4 && gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]!=4)
+    {
+        toggle1=0;
+    }
+    for(map<string,Game>::iterator it=background.begin();it!=background.end();it++){
         string current = it->first; //The name of the current object
         glm::mat4 MVP;  // MVP = Projection * View * Model
 
         Matrices.model = glm::mat4(1.0f);
 
         glm::mat4 ObjectTransform;
-        glm::mat4 translateObject = glm::translate (glm::vec3(tiles[current].x,tiles[current].y, tiles[current].z)); 
-        glm::mat4 rotateTriangle = glm::rotate((float)((tiles[current].angle)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
-        ObjectTransform=translateObject*rotateTriangle;
-        Matrices.model *= ObjectTransform;
-        //MVP = VP * Matrices.model; // MVP = p * V * M
-        if(doM)
-            MVP = VP * Matrices.model;
-        //else
-         //   MVP = VP;
-        glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-        draw3DObject(tiles[current].object);
-        //glPopMatrix (); 
-    }
-    for(map<string,Game>::iterator it=cube.begin();it!=cube.end();it++){
-        string current = it->first; //The name of the current object
-        glm::mat4 MVP;  // MVP = Projection * View * Model
-
-        Matrices.model = glm::mat4(1.0f);
-
-        glm::mat4 ObjectTransform;
-        glm::mat4 translateObject = glm::translate (glm::vec3(cube[current].x,cube[current].y, cube[current].z)); 
-        glm::mat4 rotateTriangle = glm::rotate((float)((cube[current].angle)*M_PI/180.0f), glm::vec3(1,0,0));// glTranslatef
+        glm::mat4 translateObject = glm::translate (glm::vec3(background[current].x,background[current].y, background[current].z)); 
+        glm::mat4 rotateTriangle = glm::rotate((float)((background[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
         ObjectTransform=translateObject*rotateTriangle;
         Matrices.model *= ObjectTransform;
         //MVP = VP * Matrices.model; // MVP = p * V * M
@@ -870,8 +1480,54 @@ void draw (GLFWwindow* window,int doM, int doV, int doP)
             MVP = VP;
         glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        draw3DObject(cube[current].object);
+        draw3DObject(background[current].object);
         //glPopMatrix (); 
+    }
+    for(map<string,Game>::iterator it=tiles.begin();it!=tiles.end();it++){
+        string current = it->first; //The name of the current object
+        if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==3 && bridge==0)
+        {
+            continue;
+        }
+        if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==5 && bridge1==0)
+        {
+            continue;
+        }
+        glm::mat4 MVP;  // MVP = Projection * View * Model
+
+        Matrices.model = glm::mat4(1.0f);
+
+        glm::mat4 ObjectTransform;
+        glm::mat4 translateObject = glm::translate (glm::vec3(tiles[current].x,tiles[current].y, tiles[current].z)); 
+        glm::mat4 rotateTriangle = glm::rotate((float)((tiles[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
+        ObjectTransform=translateObject*rotateTriangle;
+        Matrices.model *= ObjectTransform;
+        //MVP = VP * Matrices.model; // MVP = p * V * M
+        if(doM)
+            MVP = VP * Matrices.model;
+        else
+            MVP = VP;
+        glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        draw3DObject(tiles[current].object);
+        //glPopMatrix (); 
+    }
+    for(map<string,Game>::iterator it=cube.begin();it!=cube.end();it++){
+        string current = it->first; //The name of the current object
+        glm::mat4 MVP;  // MVP = Projection * View * Model
+        Matrices.model = glm::mat4(1.0f);
+        glm::mat4 ObjectTransform;
+        glm::mat4 translateObject = glm::translate (glm::vec3(cube[current].x,cube[current].y, cube[current].z));
+        ObjectTransform=translateObject*rotateTriangle1;
+        Matrices.model *= ObjectTransform;
+        //MVP = VP * Matrices.model; // MVP = p * V * M
+        if(doM)
+            MVP = VP * Matrices.model;
+        else
+            MVP = VP;
+        glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        draw3DObject(cube[current].object);
     }
     /*Matrices.model = glm::translate(floor_pos);
     MVP = VP * Matrices.model;
@@ -933,25 +1589,39 @@ void initGL (GLFWwindow* window, int width, int height)
     Matrices.MatrixID = glGetUniformLocation(programID, "MVP");
 
 	int k=0,i,j;
+    //createtile("background",0,skyblue2,skyblue1,skyblue1,skyblue4,0,0,0,1000,1000,1000,"background",0,0,0);
+    //createRectangle("background1",0,skyblue2,skyblue1,skyblue,skyblue4,300,0,0,height,0,width,"background",0,0,0);
     for(i=0;i<12;i++)
     {
-        for(j=0;j<12;j++)
+        for(j=0;j<17;j++)
         {
-            if(gamemap[i][j]==1)
+            if(gamemap[i][j]==1 || gamemap[i][j]==3 || gamemap[i][j]==5 || gamemap[i][j]==6 || gamemap[i][j]==4)
             {
                 string c="tile";
                 char d=k+'0';
                 string e=c+d;
                 if((i+j)%2==0) 
-                    createtile(e,0,brown1,brown1,brown1,brown1,2*(i-3),0,2*(j-3),1,2,2,"tile",0,i,j);
+                    createtile(e,0,brown1,brown1,brown1,brown2,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
                 else
-                    createtile(e,0,brown2,brown2,brown2,brown2,2*(i-3),0,2*(j-3),1,2,2,"tile",0,i,j);
+                    createtile(e,0,brown2,brown2,brown2,brown1,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
                 k++;
-            }        
+                
+            } 
+            if(gamemap[i][j]==2)
+            {
+                string c="tile";
+                char d=k+'0';
+                string e=c+d;
+                if((i+j)%2==0) 
+                    createtile(e,0,gold,gold,gold,coingold,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
+                else
+                    createtile(e,0,coingold,coingold,coingold,gold,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
+                k++;            
+            }  
         }
     }
-    createRectangle("cube1",0,brown2,brown2,brown2,brown2,14,0.5,6,2,2,2,"cube",0,0,0);
-    createRectangle("cube2",0,brown2,brown2,brown2,brown2,14,2.5,6,2,2,2,"cube",0,0,0);
+    createRectangle("cube1",0,red,red,red,red,12,0.25,-4,2,2,2,"cube",0,0,0);
+    createRectangle("cube2",0,red,red,red,red,12,2.25,-4,2,2,2,"cube",0,0,0);
     reshapeWindow (window, width, height);
 
     // Background color of the scene
@@ -989,13 +1659,14 @@ int main (int argc, char** argv)
 
         // OpenGL Draw commands
 	current_time = glfwGetTime();
+    angle=135;
 	/*if(do_rot)
 	    camera_rotation_angle += 90*(current_time - last_update_time); // Simulating camera rotation
 	if(camera_rotation_angle > 720)
 	    camera_rotation_angle -= 720;*/
 	last_update_time = current_time;
-	draw(window, 1, 1, 1);
-	//draw(window, 0.5, 0, 0.5, 0.5, 0, 1, 1);
+	draw(window, 0, 0 ,1,1,1, 1, 1);
+	//draw(window, 0.5,0, 0.5, 1, 0, 1, 1);
 	//draw(window, 0, 0.5, 0.5, 0.5, 1, 0, 1);
 	//draw(window, 0.5, 0.5, 0.5, 0.5, 0, 0, 1);
 
