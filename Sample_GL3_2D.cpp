@@ -81,21 +81,51 @@ struct Game {
     float numy;
 };
 map <string, Game> tiles;
+map <string, Game> tiles1;
 map <string, Game> background;
 map <string, Game> cube;
-
-int gamemap[12][17]={
+map <string, Game> Score;
+map <string, Game> heart;
+int gamemap2[12][17]={
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     {0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0},
-    {0,0,0,0,1,0,1,1,0,0,0,0,0,2,1,0,0},
+    {0,0,0,0,1,7,1,1,1,2,0,0,0,2,1,0,0},
     {0,0,0,0,1,1,1,0,0,0,0,0,0,2,1,1,0},
     {0,0,0,0,0,0,0,0,2,1,4,0,0,1,1,1,0},
     {0,0,0,1,0,0,0,0,2,2,5,0,0,3,0,1,0},
     {0,0,1,1,2,0,0,0,2,2,5,0,0,3,0,1,0},
     {0,2,2,2,2,0,0,0,1,1,1,0,0,1,1,1,0},
-    {0,2,2,2,1,2,1,2,2,6,2,0,0,1,1,3,0},
-    {0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,3,0},
-    {0,0,2,1,2,2,2,0,0,2,2,2,2,1,3,3,0},
+    {0,2,2,2,1,2,1,2,2,6,2,0,0,1,1,0,0},
+    {0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,0,0},
+    {0,0,2,1,2,2,2,0,0,2,2,2,2,1,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+};
+int gamemap1[12][17]={
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+    {0,1,1,1,1,7,1,1,1,2,0,0,0,2,1,0,0},
+    {0,0,1,1,1,1,1,1,1,1,1,1,1,2,1,1,0},
+    {0,0,1,1,1,0,0,1,2,1,4,0,0,1,1,1,0},
+    {0,0,1,1,1,0,0,1,2,2,5,0,0,3,0,1,0},
+    {0,0,1,1,2,0,0,1,2,2,5,0,0,3,0,1,0},
+    {0,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,0},
+    {0,2,2,2,1,2,1,2,2,6,2,0,0,1,1,0,0},
+    {0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,0,0},
+    {0,0,2,1,2,2,2,0,0,2,2,2,2,1,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+};
+int gamemap[12][17]={
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 
@@ -318,6 +348,10 @@ double mouse_pos_x, mouse_pos_y;
 double prev_mouse_pos_x,prev_mouse_pos_y;
 int bridge=0,bridge1=0;
 int roundi=0;
+int partition=0;
+int moves=100;
+int clock1=300;
+int life=5;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
 
@@ -353,6 +387,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
             down1=0;
             right1=0;
             left1=0;
+            moves--;
         }
         break;
     case GLFW_KEY_DOWN:
@@ -362,6 +397,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
             up1=0;
             right1=0;
             left1=0;
+            moves--;
         }
         break;
     case GLFW_KEY_LEFT:
@@ -371,6 +407,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
             left1=1;
             up1=0;
             down1=0;
+            moves--;
         }
         break;
     case GLFW_KEY_RIGHT:
@@ -380,6 +417,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
             left1=0;
             up1=0;
             down1=0;
+            moves--;
         }
         break;
     case GLFW_KEY_T:
@@ -722,6 +760,48 @@ void createCam ()
     floor_vao = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data, color_buffer_data, GL_FILL);
 }*/
 
+void createRectangle1 (string name, float angle, COLOR color,COLOR color2, float x, float y, float height, float width, string component,int status)
+{
+    // GL3 accepts only Triangles. Quads are not supported
+    float w=width/2,h=height/2;
+    GLfloat vertex_buffer_data [] = {
+        -w,-h,0, // vertex 1
+        -w,h,0, // vertex 2
+        w,h,0, // vertex 3
+
+        w,h,0, // vertex 3
+        w,-h,0, // vertex 4
+        -w,-h,0  // vertex 1
+    };
+
+    GLfloat color_buffer_data [] = {
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color2.r,color2.g,color2.b, // color 3
+
+        color2.r,color2.g,color2.b, // color 4
+        color2.r,color2.g,color2.b, // color 5
+        color.r,color.g,color.b // color 6
+    };
+
+    // create3DObject creates and returns a handle to a VAO that can be used later
+    VAO *rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+    Game InstanceGame = {};
+    InstanceGame.color = color;
+    InstanceGame.name = name;
+    InstanceGame.object = rectangle;
+    InstanceGame.x=x;
+    InstanceGame.y=y;
+    InstanceGame.height=height;
+    InstanceGame.width=width;
+    InstanceGame.anglex=angle;
+    InstanceGame.status=status;
+    if(component=="background")
+        background[name]=InstanceGame;
+    else if(component=="score")
+        Score[name]=InstanceGame;
+}
+
 void createtile (string name, float angle, COLOR color,COLOR color2,COLOR color3,COLOR color4,float x, float y,float z, float height, float width,float depth, string component,int status,float numx,float numy)
 {
     // GL3 accepts only Triangles. Quads are not supported
@@ -843,22 +923,161 @@ void createtile (string name, float angle, COLOR color,COLOR color2,COLOR color3
     InstanceGame.numy=numy;
     if(component=="tile")
         tiles[name]=InstanceGame;
+    else if(component=="tile1")
+        tiles1[name]=InstanceGame;
     else if(component=="background")
         background[name]=InstanceGame;
 }
+void createTriangle (string name, float angle, COLOR color, float x[], float y[], string component, int fill)
+{
+    /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
+    /* Define vertex array acreateRectangle("backgroundobjtree1",0,brown1,brown1,315,-100,100,20,"background",0);s used in glBegin (GL_TRIANGLES) */
+    float xc=(x[0]+x[1]+x[2])/3;
+    float yc=(y[0]+y[1]+y[2])/3;
+    GLfloat vertex_buffer_data [] = {
+        x[0]-xc,y[0]-yc,0, // vertex 0
+        x[1]-xc,y[1]-yc,0, // vertex 1
+        x[2]-xc,y[2]-yc,0 // vertex 2
+    };
+
+    GLfloat color_buffer_data [] = {
+        color.r,color.g,color.b, // color 1
+        color.r,color.g,color.b, // color 2
+        color.r,color.g,color.b // color 3
+    };
+
+    // create3DObject creates and returns a handle to a VAO that can be used later
+    VAO *triangle;
+    if(fill==1)
+        triangle=create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_FILL);
+    else
+        triangle=create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_LINE);
+    Game InstanceGame = {};
+    InstanceGame.color = color;
+    InstanceGame.name = name;
+    InstanceGame.object = triangle;
+    InstanceGame.x=(x[0]+x[1]+x[2])/3;
+    InstanceGame.y=(y[0]+y[1]+y[2])/3;
+    InstanceGame.height=-1;
+    InstanceGame.width=-1;
+    InstanceGame.radius=-1;
+    InstanceGame.anglex=angle;
+    if(component=="heart")
+        heart[name]=InstanceGame;
+}
+void createCircle (string name, float angles, COLOR color, float x, float y, float r,float r1, int NoOfParts, string component, int fill)
+{
+    int parts = NoOfParts;
+    float radius = r;
+    GLfloat vertex_buffer_data[parts*9];
+    GLfloat color_buffer_data[parts*9];
+    int i,j;
+    float angle=(2*M_PI/parts);
+    float current_angle = 0;
+    for(i=0;i<parts;i++){
+        for(j=0;j<3;j++){
+            color_buffer_data[i*9+j*3]=color.r;
+            color_buffer_data[i*9+j*3+1]=color.g;
+            color_buffer_data[i*9+j*3+2]=color.b;
+        }
+        vertex_buffer_data[i*9]=0;
+        vertex_buffer_data[i*9+1]=0;
+        vertex_buffer_data[i*9+2]=0;
+        vertex_buffer_data[i*9+3]=radius*cos(current_angle);
+        vertex_buffer_data[i*9+4]=r1*sin(current_angle);
+        vertex_buffer_data[i*9+5]=0;
+        vertex_buffer_data[i*9+6]=radius*cos(current_angle+angle);
+        vertex_buffer_data[i*9+7]=r1*sin(current_angle+angle);
+        vertex_buffer_data[i*9+8]=0;
+        current_angle+=angle;
+    }
+    VAO* circle;
+    if(fill==1)
+        circle = create3DObject(GL_TRIANGLES, (parts*9)/3, vertex_buffer_data, color_buffer_data, GL_FILL);
+    else
+        circle = create3DObject(GL_TRIANGLES, (parts*9)/3, vertex_buffer_data, color_buffer_data, GL_LINE);
+    Game InstanceGame = {};
+    InstanceGame.color = color;
+    InstanceGame.name = name;
+    InstanceGame.object = circle;
+    InstanceGame.x=x;
+    InstanceGame.y=y;
+    InstanceGame.height=2*r; //Height of the Game is 2*r
+    InstanceGame.width=2*r; //Width of the Game is 2*r
+    InstanceGame.radius=r;
+    InstanceGame.anglex=angles;
+    if(component=="heart")
+        heart[name]=InstanceGame;
+}
 float camera_rotation_angle = 90;
 int toggle=0;
 int toggle1=0;
+int stage=1;
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 float angle;
 int rep=0,fl=0;
 glm::mat4 rotateTriangle2;
 glm::mat4 rotateTriangle1;
+void statusforscore(char val){
+    Score["top"].status=0;
+    Score["bottom"].status=0;
+    Score["middle"].status=0;
+    Score["left1"].status=0;
+    Score["left2"].status=0;
+    Score["right1"].status=0;
+    Score["right2"].status=0;
+    Score["middle1"].status=0;
+    Score["middle2"].status=0;
+    Score["diagonal1"].status=0;
+    Score["diagonal2"].status=0;
+    Score["diagonal3"].status=0;
+    Score["diagonal4"].status=0;
+    if(val=='A'|| val=='G' || val=='E' || val=='F' || val=='T' || val=='P' || val=='O' || val=='C' || val=='S' || val=='0' || val=='2' || val=='3' || val=='5' || val=='6'|| val=='7' || val=='8' || val=='9'){
+        Score["top"].status=1;
+    }
+    if(val=='A' || val=='E' || val=='F' || val=='P' || val=='S' || val=='2' || val=='3' || val=='4' || val=='5' || val=='6' || val=='8' || val=='9'){
+        Score["middle"].status=1;
+    }
+    if(val=='G' || val=='W' || val=='U' || val=='E' || val=='L' || val=='O' || val=='C' || val=='S' || val=='0' || val=='2' || val=='3' || val=='5' || val=='6' || val=='8' || val=='9'){
+        Score["bottom"].status=1;
+    }
+    if(val=='A' || val=='G' || val=='M' || val=='W' || val=='U' || val=='E' || val=='F' || val=='L' || val=='N' || val=='P' || val=='O' || val=='C' || val=='S' || val=='0' || val=='4' || val=='5' || val=='6' || val=='8' || val=='9' ){
+        Score["left1"].status=1;
+    }
+    if(val=='A' || val=='G' || val=='M' || val=='W' || val=='U' || val=='E' || val=='F' || val=='L' || val=='N' || val=='P' || val=='O' || val=='C' || val=='0' || val=='2' || val=='6' || val=='8'){
+        Score["left2"].status=1;
+    }
+    if(val=='A' || val=='M' || val=='W' || val=='U' || val=='N' || val=='P'  || val=='O' || val=='0' || val=='1' || val=='2' || val=='3' || val=='4' || val=='7' || val=='8' || val=='9'){
+        Score["right1"].status=1;
+    }
+    if(val=='A' || val=='G' || val=='M' || val=='W' || val=='U' || val=='N' || val=='O' || val=='S' || val=='0' || val=='1' || val=='3' || val=='4' || val=='5' || val=='6' || val=='7' || val=='8' || val=='9'){
+        Score["right2"].status=1;
+    }
+    if(val=='T' || val=='I')
+    {
+        Score["middle1"].status=1;
+    }
+    if(val=='W' || val=='T' || val=='I' || val=='Y')
+    {
+        Score["middle2"].status=1;
+    }
+    if(val=='M' || val=='N' || val=='Y')
+    {
+        Score["diagonal1"].status=1;
+    }
+    if(val=='M' || val=='Y')
+    {
+        Score["diagonal2"].status=1;
+    }
+    if(val=='N')
+    {
+        Score["diagonal4"].status=1;
+    }
+}
 void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, int doP)
 {
-
     int fbwidth, fbheight;
     glfwGetFramebufferSize(window, &fbwidth, &fbheight);
     glViewport((int)(x*fbwidth), (int)(y*fbheight), (int)(w*fbwidth), (int)(h*fbheight));
@@ -866,8 +1085,386 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
 
     // use the loaded shader program
     // Don't change unless you know what you are doing
-    glUseProgram(programID);
+    
+    if(partition==0)
+    {
+        glUseProgram(programID);
+        glm::vec3 eye(0+cos(45*M_PI/180),0,20);
+        //glm::vec3 eye ( 8*sin(camera_rotation_angle*M_PI/180.0f), 3, 8*sin(camera_rotation_angle*M_PI/180.0f) );
+        // Target - Where is the camera looking at.  Don't change unless you are sure!!
+        glm::vec3 target (0,0,0);
+        // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
+        glm::vec3 up (0, 1, 0);
 
+        // Compute Camera matrix (view)
+        if(doV)
+        Matrices.view = glm::lookAt(eye, target, up); // Fixed camera for 2D (ortho) in XY plane
+        else
+        Matrices.view = glm::mat4(1.0f);
+
+        // Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
+        glm::mat4 VP;
+        if (doP)
+        VP = Matrices.projection * Matrices.view;
+        else
+        VP = Matrices.view;
+
+        // Send our transformation to the currently bound shader, in the "MVP" uniform
+        // For each model you render, since the MVP will be different (at least the M part)
+        glm::mat4 MVP;  // MVP = Projection * View * Model
+
+        // Load identity to model matrix
+        Matrices.model = glm::mat4(1.0f);
+        for(map<string,Game>::iterator it=background.begin();it!=background.end();it++){
+            string current = it->first; //The name of the current object
+            glm::mat4 MVP;  // MVP = Projection * View * Model
+
+            Matrices.model = glm::mat4(1.0f);
+            glm::mat4 ObjectTransform;
+            glm::mat4 translateObject = glm::translate (glm::vec3(background[current].x,background[current].y,0.0f)); 
+            glm::mat4 rotateTriangle = glm::rotate((float)((background[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
+            ObjectTransform=translateObject*rotateTriangle;
+            Matrices.model *= ObjectTransform;
+            MVP = VP * Matrices.model; // MVP = p * V * M
+            /*if(doM)
+                MVP = VP * Matrices.model;
+            else
+                MVP = VP;*/
+            glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+            draw3DObject(background[current].object);
+            //glPopMatrix (); 
+        }
+        int k;
+        for(k=1;k<=4;k++)
+        {
+            float translation;
+            float translation1=0.85;
+            if(k==1)
+            {
+                statusforscore('L');
+                translation=-0.6;
+            }
+            else if(k==2)
+            {
+                statusforscore('I');
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore('F');
+                translation=-0.2;
+            }
+            else if(k==4)
+            {
+                statusforscore('E');
+                translation=0;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++){
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y+translation1,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+        int num=0;
+        for(num=1;num<=life;num++)
+        {
+            float translation,translation1=0.6;
+            if(num==1)
+                translation=-0.6;
+            if(num==2)
+                translation=-0.4;
+            if(num==3)
+                translation=-0.2;
+            if(num==4)
+                translation=0;
+            if(num==5)
+                translation=0.2;
+            for(map<string,Game>::iterator it=heart.begin();it!=heart.end();it++){
+                string current = it->first;
+                glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                Matrices.model = glm::mat4(1.0f);
+
+                /* Render your scene */
+                glm::mat4 ObjectTransform;
+                glm::mat4 translateObject = glm::translate (glm::vec3(heart[current].x+translation,heart[current].y+translation1,0.0f)); // glTranslatef
+                glm::mat4 rotateTriangle = glm::rotate((float)((heart[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                ObjectTransform=translateObject*rotateTriangle;
+                Matrices.model *= ObjectTransform;
+                MVP = VP * Matrices.model; // MVP = p * V * M
+
+                glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                draw3DObject(heart[current].object);
+            }
+        }
+        int total=clock1;
+        int ones,tens,hundreds;
+        char val1,val2,val3;
+        ones=total%10;
+        total=total/10;
+        tens=total%10;
+        total=total/10;
+        hundreds=total%10;
+        val1=ones+'0';
+        val2=tens+'0';
+        val3=hundreds+'0';
+        for(k=1;k<=4;k++)
+        {
+            float translation;
+            float translation1=0.35;
+            if(k==1)
+            {
+                statusforscore('T');
+                translation=-0.6;
+            }
+            else if(k==2)
+            {
+                statusforscore('I');
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore('M');
+                translation=-0.2;
+            }
+            else if(k==4)
+            {
+                statusforscore('E');
+                translation=0;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++){
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y+translation1,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+        for(k=1;k<=3;k++)
+        {
+            float translation;
+            if(k==1)
+            {
+                statusforscore(val1);
+                translation=-0.2;
+            }
+            else if(k==2)
+            {
+                statusforscore(val2);
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore(val3);
+                translation=-0.6;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++){
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y+0.1,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+        for(k=1;k<=5;k++)
+        {
+            float translation;
+            float translation1=-0.25;
+            if(k==1)
+            {
+                statusforscore('S');
+                translation=-0.6;
+            }
+            else if(k==2)
+            {
+                statusforscore('T');
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore('E');
+                translation=-0.2;
+            }
+            else if(k==4)
+            {
+                statusforscore('P');
+                translation=0;
+            }
+            else if(k==5)
+            {
+                statusforscore('S');
+                translation=0.2;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++)
+            {
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y+translation1,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+        total=moves;
+        ones=total%10;
+        total=total/10;
+        tens=total%10;
+        total=total/10;
+        hundreds=total%10;
+        val1=ones+'0';
+        val2=tens+'0';
+        val3=hundreds+'0';
+        for(k=1;k<=3;k++)
+        {
+            float translation;
+            if(k==1)
+            {
+                statusforscore(val1);
+                translation=-0.2;
+            }
+            else if(k==2)
+            {
+                statusforscore(val2);
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore(val3);
+                translation=-0.6;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++){
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y-0.5,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+        for(k=1;k<=6;k++)
+        {
+            float translation;
+            float translation1=-0.85;
+            if(k==1)
+            {
+                statusforscore('S');
+                translation=-0.6;
+            }
+            else if(k==2)
+            {
+                statusforscore('T');
+                translation=-0.4;
+            }
+            else if(k==3)
+            {
+                statusforscore('A');
+                translation=-0.2;
+            }
+            else if(k==4)
+            {
+                statusforscore('G');
+                translation=0;
+            }
+            else if(k==5)
+            {
+                statusforscore('E');
+                translation=0.2;
+            }
+            else if(k==6)
+            {
+                statusforscore(char(stage+'0'));
+                translation=0.5;
+            }
+            for(map<string,Game>::iterator it=Score.begin();it!=Score.end();it++){
+                string current = it->first; 
+                if(Score[current].status==1)
+                {
+                    glm::mat4 MVP;  // MVP = Projection * View * Model
+
+                    Matrices.model = glm::mat4(1.0f);
+
+                    /* Render your scene */
+                    glm::mat4 ObjectTransform;
+                    glm::mat4 translateObject = glm::translate (glm::vec3(Score[current].x+translation,Score[current].y+translation1,0.0f)); // glTranslatef
+                    glm::mat4 rotateTriangle = glm::rotate((float)((Score[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
+                    ObjectTransform=translateObject*rotateTriangle;
+                    Matrices.model *= ObjectTransform;
+                    MVP = VP * Matrices.model; // MVP = p * V * M
+
+                    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+                    draw3DObject(Score[current].object);
+                }
+            }
+        }
+    }
+    if(partition==1)
+    {
     // Eye - Location of camera. Don't change unless you are sure!!
     /*camera_radius=1;
     angle=90;
@@ -877,6 +1474,7 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
     eye_x=-4;
     eye_y=12;
     eye_z=-4;*/
+    glUseProgram(programID);
     float temp1,temp2,temp3;
     temp1= (cube["cube1"].x+cube["cube2"].x)/2;
     temp2 = (cube["cube1"].y+cube["cube2"].y)/2;
@@ -886,7 +1484,7 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         eye_x = 0+cos(45*M_PI/180);
         eye_z = 0;
         //+sin(45*M_PI/180);
-        eye_y=20;
+        eye_y=10;
         target_x=0;
         target_y=0;
         target_z=0;
@@ -902,8 +1500,8 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
     }
     if(camera_tower==1)
     {
-        eye_x = 15,
-        eye_y = 15;
+        eye_x = 12,
+        eye_y = 12;
         eye_z = 0;
         target_z = 0;
         target_y = 0;
@@ -993,8 +1591,8 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         if(mouse_click==1)
         {
             angle=(mouse_pos_x)*360/600;
-            eye_x = 20*cos(angle*M_PI/180);
-            eye_z = 20*sin(angle*M_PI/180);
+            eye_x = 15*cos(angle*M_PI/180);
+            eye_z = 15*sin(angle*M_PI/180);
             target_x = 0;
             target_z = 0;
             target_y = 0;
@@ -1002,7 +1600,7 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         if(right_mouse_click==1)
         {
             angle = 90-(mouse_pos_y)*90/600;
-            eye_y = 20*sin(angle*M_PI/180);
+            eye_y = 15*sin(angle*M_PI/180);
             target_x = 0;
             target_z = 0;
             target_y = 0;
@@ -1070,15 +1668,6 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
     // draw3DObject draws the VAO given to it using current MVP matrix
     draw3DObject(cam);*/
     
-    //createtile("tile",0,brown1,brown1,brown1,brown1,0,0,0,0.5,0.5,0.5,"tile",0,0,0);
-    /*if(gamemap[int(cube["cube1"].x/2)+3][int(cube["cube1"].z/2)+3]==0)
-    {
-        quit(window);
-    }
-    if(gamemap[int(cube["cube2"].x/2)+3][int(cube["cube2"].z/2)+3]==0)
-    {
-        quit(window);
-    }*/
     if(down1==1)
     {
         float ch1,ch2;
@@ -1413,16 +2002,74 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
             {
                 if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==2)
                 {
-                    quit(window);
+                    //quit(window);
+                    life--;
+                    cube["cube1"].x=6;
+                    cube["cube2"].x=6;
+                    cube["cube2"].z=-14;
+                    cube["cube1"].z=-14;
+                    cube["cube1"].y=0.25;
+                    cube["cube2"].y=2.25;
                 }
             }
             else
             {
                 if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==2)
                 {
-                    quit(window);
+                    //quit(window);
+                    life--;
+                    cube["cube1"].x=6;
+                    cube["cube2"].x=6;
+                    cube["cube2"].z=-14;
+                    cube["cube1"].z=-14;
+                    cube["cube1"].y=0.25;
+                    cube["cube2"].y=2.25;
                 }
             }
+        }
+        if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==0)
+        {
+            //quit(window);
+            life--;
+            cube["cube1"].x=6;
+            cube["cube2"].x=6;
+            cube["cube2"].z=-14;
+            cube["cube1"].z=-14;
+            cube["cube1"].y=0.25;
+            cube["cube2"].y=2.25;
+        }
+        else if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==0)
+        {
+            //quit(window);
+            life--;
+            cube["cube1"].x=6;
+            cube["cube2"].x=6;
+            cube["cube2"].z=-14;
+            cube["cube1"].z=-14;
+            cube["cube1"].y=0.25;
+            cube["cube2"].y=2.25;
+        }
+        if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==7 && gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==7)
+        {
+            stage++;
+            cube["cube1"].x=6;
+            cube["cube2"].x=6;
+            cube["cube2"].z=-14;
+            cube["cube1"].z=-14;
+            cube["cube1"].y=0.25;
+            cube["cube2"].y=2.25;
+            clock1=100;
+        }
+        else if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==7 || gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==7)
+        {
+            //quit(window);
+            life--;
+            cube["cube1"].x=6;
+            cube["cube2"].x=6;
+            cube["cube2"].z=-14;
+            cube["cube1"].z=-14;
+            cube["cube1"].y=0.25;
+            cube["cube2"].y=2.25;
         }
     }
     if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==6 || gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==6)
@@ -1462,55 +2109,69 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
     {
         toggle1=0;
     }
-    for(map<string,Game>::iterator it=background.begin();it!=background.end();it++){
-        string current = it->first; //The name of the current object
-        glm::mat4 MVP;  // MVP = Projection * View * Model
+    if(stage==1)
+    {
+        for(map<string,Game>::iterator it=tiles.begin();it!=tiles.end();it++){
+            string current = it->first; //The name of the current object
+            if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==3 && bridge==0)
+            {
+                continue;
+            }
+            if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==5 && bridge1==0)
+            {
+                continue;
+            }
+            glm::mat4 MVP;  // MVP = Projection * View * Model
 
-        Matrices.model = glm::mat4(1.0f);
+            Matrices.model = glm::mat4(1.0f);
 
-        glm::mat4 ObjectTransform;
-        glm::mat4 translateObject = glm::translate (glm::vec3(background[current].x,background[current].y, background[current].z)); 
-        glm::mat4 rotateTriangle = glm::rotate((float)((background[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
-        ObjectTransform=translateObject*rotateTriangle;
-        Matrices.model *= ObjectTransform;
-        //MVP = VP * Matrices.model; // MVP = p * V * M
-        if(doM)
-            MVP = VP * Matrices.model;
-        else
-            MVP = VP;
-        glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+            glm::mat4 ObjectTransform;
+            glm::mat4 translateObject = glm::translate (glm::vec3(tiles[current].x,tiles[current].y, tiles[current].z)); 
+            glm::mat4 rotateTriangle = glm::rotate((float)((tiles[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
+            ObjectTransform=translateObject*rotateTriangle;
+            Matrices.model *= ObjectTransform;
+            //MVP = VP * Matrices.model; // MVP = p * V * M
+            if(doM)
+                MVP = VP * Matrices.model;
+            else
+                MVP = VP;
+            glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        draw3DObject(background[current].object);
-        //glPopMatrix (); 
+            draw3DObject(tiles[current].object);
+            //glPopMatrix (); 
+        }
     }
-    for(map<string,Game>::iterator it=tiles.begin();it!=tiles.end();it++){
-        string current = it->first; //The name of the current object
-        if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==3 && bridge==0)
-        {
-            continue;
+    else if(stage==2)
+    {
+        for(map<string,Game>::iterator it=tiles1.begin();it!=tiles1.end();it++){
+            string current = it->first; //The name of the current object
+            if(gamemap[int(tiles1[current].numx)][int(tiles1[current].numy)]==3 && bridge==0)
+            {
+                continue;
+            }
+            if(gamemap[int(tiles1[current].numx)][int(tiles1[current].numy)]==5 && bridge1==0)
+            {
+                continue;
+            }
+            glm::mat4 MVP;  // MVP = Projection * View * Model
+
+            Matrices.model = glm::mat4(1.0f);
+
+            glm::mat4 ObjectTransform;
+            glm::mat4 translateObject = glm::translate (glm::vec3(tiles1[current].x,tiles1[current].y, tiles1[current].z)); 
+            glm::mat4 rotateTriangle = glm::rotate((float)((tiles1[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
+            ObjectTransform=translateObject*rotateTriangle;
+            Matrices.model *= ObjectTransform;
+            //MVP = VP * Matrices.model; // MVP = p * V * M
+            if(doM)
+                MVP = VP * Matrices.model;
+            else
+                MVP = VP;
+            glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+            draw3DObject(tiles1[current].object);
+            //glPopMatrix (); 
         }
-        if(gamemap[int(tiles[current].numx)][int(tiles[current].numy)]==5 && bridge1==0)
-        {
-            continue;
-        }
-        glm::mat4 MVP;  // MVP = Projection * View * Model
-
-        Matrices.model = glm::mat4(1.0f);
-
-        glm::mat4 ObjectTransform;
-        glm::mat4 translateObject = glm::translate (glm::vec3(tiles[current].x,tiles[current].y, tiles[current].z)); 
-        glm::mat4 rotateTriangle = glm::rotate((float)((tiles[current].anglex)*M_PI/180.0f), glm::vec3(0,0,1));// glTranslatef
-        ObjectTransform=translateObject*rotateTriangle;
-        Matrices.model *= ObjectTransform;
-        //MVP = VP * Matrices.model; // MVP = p * V * M
-        if(doM)
-            MVP = VP * Matrices.model;
-        else
-            MVP = VP;
-        glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-        draw3DObject(tiles[current].object);
-        //glPopMatrix (); 
     }
     for(map<string,Game>::iterator it=cube.begin();it!=cube.end();it++){
         string current = it->first; //The name of the current object
@@ -1535,6 +2196,7 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
 
     // draw3DObject draws the VAO given to it using current MVP matrix
     draw3DObject(floor_vao);*/
+}
 
 }
 
@@ -1590,12 +2252,12 @@ void initGL (GLFWwindow* window, int width, int height)
 
 	int k=0,i,j;
     //createtile("background",0,skyblue2,skyblue1,skyblue1,skyblue4,0,0,0,1000,1000,1000,"background",0,0,0);
-    //createRectangle("background1",0,skyblue2,skyblue1,skyblue,skyblue4,300,0,0,height,0,width,"background",0,0,0);
+    createRectangle1("background",0,cratebrown2,cratebrown2,0,0,2,2,"background",0);
     for(i=0;i<12;i++)
     {
         for(j=0;j<17;j++)
         {
-            if(gamemap[i][j]==1 || gamemap[i][j]==3 || gamemap[i][j]==5 || gamemap[i][j]==6 || gamemap[i][j]==4)
+            if(gamemap1[i][j]==1 || gamemap1[i][j]==3 || gamemap1[i][j]==5 || gamemap1[i][j]==6 || gamemap1[i][j]==4)
             {
                 string c="tile";
                 char d=k+'0';
@@ -1607,7 +2269,7 @@ void initGL (GLFWwindow* window, int width, int height)
                 k++;
                 
             } 
-            if(gamemap[i][j]==2)
+            if(gamemap1[i][j]==2)
             {
                 string c="tile";
                 char d=k+'0';
@@ -1620,8 +2282,88 @@ void initGL (GLFWwindow* window, int width, int height)
             }  
         }
     }
-    createRectangle("cube1",0,red,red,red,red,12,0.25,-4,2,2,2,"cube",0,0,0);
-    createRectangle("cube2",0,red,red,red,red,12,2.25,-4,2,2,2,"cube",0,0,0);
+    for(i=0;i<12;i++)
+    {
+        for(j=0;j<17;j++)
+        {
+            if(gamemap2[i][j]==1 || gamemap2[i][j]==3 || gamemap2[i][j]==5 || gamemap2[i][j]==6 || gamemap2[i][j]==4)
+            {
+                string c="tile";
+                char d=k+'0';
+                string e=c+d;
+                if((i+j)%2==0) 
+                    createtile(e,0,brown1,brown1,brown1,brown2,2*(i-6),-1,2*(j-8),0.5,2,2,"tile1",0,i,j);
+                else
+                    createtile(e,0,brown2,brown2,brown2,brown1,2*(i-6),-1,2*(j-8),0.5,2,2,"tile1",0,i,j);
+                k++;
+                
+            } 
+            if(gamemap2[i][j]==2)
+            {
+                string c="tile";
+                char d=k+'0';
+                string e=c+d;
+                if((i+j)%2==0) 
+                    createtile(e,0,gold,gold,gold,coingold,2*(i-6),-1,2*(j-8),0.5,2,2,"tile1",0,i,j);
+                else
+                    createtile(e,0,coingold,coingold,coingold,gold,2*(i-6),-1,2*(j-8),0.5,2,2,"tile1",0,i,j);
+                k++;            
+            }  
+        }
+    }
+
+    float ycoord=-1;
+    for(k=1;k<=21;k++)
+    {
+        char t=k+'0';
+        string u="wall";
+        string v=u+t;
+        COLOR wallcolor;
+        if(k%2==0)
+        {
+            wallcolor.r=cratebrown.r;
+            wallcolor.g=cratebrown.g;
+            wallcolor.b=cratebrown.b;
+        }
+        else
+        {
+            wallcolor.r=cratebrown1.r;
+            wallcolor.g=cratebrown1.g;
+            wallcolor.b=cratebrown1.b;            
+        }
+        createRectangle1(v,0,wallcolor,wallcolor,-0.9,ycoord,0.1,0.2,"background",0);
+        ycoord=ycoord+0.1;
+    }
+    float x[3],y[3];
+    x[0]=0;
+    x[1]=0.05;
+    x[2]=-0.05;
+    y[0]=0;
+    y[1]=0.05;
+    y[2]=0.05;
+    createCircle("heartcircle1",0,red,0.025,0.05,0.025,0.025,200,"heart",1);
+    //heart["heartcircle1"].status=1;
+    createCircle("heartcircle2",0,red,-0.025,0.05,0.025,0.025,200,"heart",1);
+    //heart["heartcircle2"].status=1;
+    createTriangle ("hearttriangle",0,red,x,y,"heart",1);
+    createRectangle("cube1",0,red,red,red,red,6,0.25,-14,2,2,2,"cube",0,0,0);
+    createRectangle("cube2",0,red,red,red,red,6,2.25,-14,2,2,2,"cube",0,0,0);
+    COLOR color=gold;
+    float width1=0.1;
+    float height1=0.02;
+    createRectangle1("top",0,color,color,0,0.1,height1,width1,"score",0);
+    createRectangle1("bottom",0,color,color,0,-0.1,height1,width1,"score",0);
+    createRectangle1("middle",0,color,color,0,0,height1,width1,"score",0);
+    createRectangle1("left1",0,color,color,-0.05,0.05,width1,height1,"score",0);
+    createRectangle1("left2",0,color,color,-0.05,-0.05,width1,height1,"score",0);
+    createRectangle1("right1",0,color,color,0.05,0.05,width1,height1,"score",0);
+    createRectangle1("right2",0,color,color,0.05,-0.05,width1,height1,"score",0);
+    createRectangle1("middle1",0,color,color,0,0.05,width1,height1,"score",0);
+    createRectangle1("middle2",0,color,color,0,-0.05,width1,height1,"score",0);
+    createRectangle1("diagonal1",(atan(0.5)*180/M_PI),color,color,-0.025,0.05,width1/2,height1,"score",0);
+    createRectangle1("diagonal2",-(atan(0.5)*180/M_PI),color,color,0.025,0.05,width1/2,height1,"score",0);
+    createRectangle1("diagonal3",-(atan(0.5)*180/M_PI),color,color,-0.025,-0.05,width1/2,height1,"score",0);
+    createRectangle1("diagonal4",(atan(0.5)*180/M_PI),color,color,0.025,-0.05,width1/2,height1,"score",0);
     reshapeWindow (window, width, height);
 
     // Background color of the scene
@@ -1639,13 +2381,13 @@ void initGL (GLFWwindow* window, int width, int height)
 
 int main (int argc, char** argv)
 {
-    int width = 600;
+    int width = 1000;
     int height = 600;
     rect_pos = glm::vec3(0, 0, 0);
     floor_pos = glm::vec3(0, 0, 0);
     do_rot = 0;
     floor_rel = 1;
-
+    int it1,it2;
     GLFWwindow* window = initGLFW(width, height);
     initGLEW();
     initGL (window, width, height);
@@ -1664,9 +2406,42 @@ int main (int argc, char** argv)
 	    camera_rotation_angle += 90*(current_time - last_update_time); // Simulating camera rotation
 	if(camera_rotation_angle > 720)
 	    camera_rotation_angle -= 720;*/
-	last_update_time = current_time;
-	draw(window, 0, 0 ,1,1,1, 1, 1);
-	//draw(window, 0.5,0, 0.5, 1, 0, 1, 1);
+    if(current_time-last_update_time >= 1)
+    {
+        clock1--;
+        last_update_time = current_time;
+    }
+    if(stage==1)
+    {
+        for(it1=0;it1<12;it1++)
+        {
+            for(it2=0;it2<17;it2++)
+            {
+                gamemap[it1][it2]=gamemap1[it1][it2];
+            }
+        }
+    }
+    if(stage==2)
+    {
+        for(it1=0;it1<12;it1++)
+        {
+            for(it2=0;it2<17;it2++)
+            {
+                gamemap[it1][it2]=0;
+            }
+        }
+        for(it1=0;it1<12;it1++)
+        {
+            for(it2=0;it2<17;it2++)
+            {
+                gamemap[it1][it2]=gamemap2[it1][it2];
+            }
+        }
+    }
+    partition=1;
+	draw(window, 0, 0 , 0.8,1,1, 1, 1);
+    partition=0;
+	draw(window, 0.8,0,0.2, 1, 0, 0, 0);
 	//draw(window, 0, 0.5, 0.5, 0.5, 1, 0, 1);
 	//draw(window, 0.5, 0.5, 0.5, 0.5, 0, 0, 1);
 
