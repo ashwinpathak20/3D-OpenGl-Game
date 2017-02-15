@@ -1,0 +1,80 @@
+﻿Description:
+	The game is designed using openGL. Other Libraries used are irrKlang. 
+	The game starts with a welcome screen. After pressing c key of the keyboard, the game is started. 
+	Block can move up,down,left and right.
+	Fragile tiles, switches and bridges are inlcuded. 
+	Different views are incorporated
+	Zooming in and out has been implemented.
+	Timer , life , stage and moves are present.
+	There are 5 lives , 5 minutes, 100 moves ,given intitally if player uses all of them , then game is over and a 'lose' window appears. Player can continue by pressing c key or quit by pressing q key.
+	If player wins and 'win' window apperars. Player can continue by pressing c key or quit by pressing q key.
+	There are three stages.
+	There is a teleport tile also.
+
+Controls:
+1.) To open the game:
+	run ./sample2D
+	(after compilation)
+
+2.) To start the game:
+	press c (when welcome screen appears).
+
+3.) Controls of the game:
+	a.) keyboard:
+Up :
+move forward.
+Down:
+move backward.
+Left:
+move left.
+Right:
+move right.
+C:
+To continue the game after winning or losing.
+P:
+To enter into the helicopter view.
+I:
+To enter into the block view.
+F:
+To enter into the follow view.
+T:
+To enter into the top view.
+R:
+To enter into the tower view.
+A:
+To look left in block and follow view.
+S:
+To look back in block and follow view.
+D:
+To look right in block and follow view.
+W:
+To look forward in block and follow view.
+J:
+To jump forward.
+N:
+To jump backward.
+B:
+To jump left.
+M:
+To jump right.
+Q:
+To quit the game.
+Esc:
+To abort the game.
+
+		
+	b.)mouse:
+
+Left-mouse click in projection , block and follow views :
+To control viewing.
+Right-mouse click in projection view :
+To control y-coordinates.
+Mouse-scroll :
+Zoom-in & Zoom-out
+
+
+Scoring:
+	Move your block inside the hole and stage is increased till stage 3.
+
+
+BEST OF LUCK!! :)

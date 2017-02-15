@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
+#include <irrKlang.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -14,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
+using namespace irrklang;
 
 struct VAO {
     GLuint VertexArrayID;
@@ -92,44 +94,44 @@ map <string, Game> prestart;
 map <string, Game> background1;
 int gamemap1[12][17]={
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-    {0,1,7,1,1,3,3,3,3,4,1,1,1,1,1,1,0},
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-    {0,1,5,1,1,1,1,2,2,2,1,2,2,2,1,1,0},
-    {0,1,5,1,1,1,1,2,1,2,1,2,1,2,1,1,0},
-    {0,1,5,1,1,1,1,2,2,2,1,2,2,2,1,1,0},
-    {0,1,5,1,1,1,1,1,1,2,1,2,1,2,1,1,0},
-    {0,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-};
-int gamemap2[12][17]={
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0},
-    {0,1,1,1,1,7,1,1,1,2,0,0,0,2,1,0,0},
-    {0,0,1,1,1,1,1,1,1,1,1,1,1,2,1,1,0},
-    {0,0,1,1,1,0,0,1,2,1,4,0,0,1,1,1,0},
-    {0,0,1,1,1,0,0,1,2,2,5,0,0,3,0,1,0},
-    {0,0,1,1,2,0,0,1,2,2,5,0,0,3,0,1,0},
-    {0,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,0},
-    {0,2,2,2,1,2,1,2,2,6,2,0,0,1,1,0,0},
-    {0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,0,0},
-    {0,0,2,1,2,2,2,0,0,2,2,2,2,1,0,0,0},
+    {0,6,0,0,0,1,1,1,1,1,1,1,0,1,1,1,0},
+    {0,1,5,5,5,5,1,0,0,0,1,1,0,1,7,1,0},
+    {0,1,5,5,5,5,1,1,1,1,1,4,0,1,1,1,0},
+    {0,1,0,0,0,0,1,0,0,0,0,0,0,2,2,3,0},
+    {0,1,0,0,0,0,1,0,0,0,2,2,2,2,3,3,0},
+    {0,1,0,0,0,0,1,0,0,0,2,2,2,2,3,3,0},
+    {0,1,0,0,0,0,1,2,2,2,2,2,2,2,3,3,0},
+    {0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0},
+    {0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,0},
+    {0,1,1,1,8,0,0,0,0,0,2,0,2,0,2,0,0},
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 int gamemap3[12][17]={
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,1,1,4,3,3,3,3,1,1,1,1,1,1,1,0},
-    {0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,0},
-    {0,1,1,1,1,0,0,0,0,2,2,2,2,2,1,1,0},
-    {0,1,5,2,1,0,0,0,0,2,2,0,0,2,1,1,0},
-    {0,2,5,2,2,0,0,0,0,2,1,0,1,2,1,1,0},
-    {0,2,5,2,2,0,0,0,0,2,1,0,1,2,7,2,0},
-    {0,1,5,1,2,0,0,0,0,2,1,0,1,2,2,2,0},
-    {0,1,6,1,1,0,0,0,0,2,0,0,0,1,1,0,0},
-    {0,1,1,2,1,0,0,0,0,2,1,1,1,1,1,1,0},
-    {0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0},
+    {0,4,1,1,1,1,1,1,1,3,3,1,1,1,1,0,0},
+    {0,0,0,0,0,0,1,1,1,3,3,0,0,2,1,0,0},
+    {0,0,1,1,1,1,1,1,1,3,3,1,1,2,1,1,0},
+    {0,0,1,1,1,0,0,1,2,0,0,0,0,1,1,1,0},
+    {0,0,1,1,1,0,0,1,2,0,0,0,0,3,0,1,0},
+    {0,0,1,1,2,0,0,1,2,0,0,0,0,3,0,1,0},
+    {0,2,2,2,2,1,1,1,1,0,0,0,5,5,5,5,0},
+    {0,2,2,2,1,2,1,2,2,2,0,0,5,2,2,2,0},
+    {0,1,2,2,2,2,2,2,2,2,0,0,5,2,7,2,0},
+    {0,0,0,1,2,2,1,0,0,6,0,0,5,2,2,2,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+};
+int gamemap2[12][17]={
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,1,1,1,0,0,0,1,1,1,1,1,1,1,4,0},
+    {0,1,1,1,1,0,0,0,1,1,3,3,3,3,3,3,0},
+    {0,1,1,1,1,0,0,0,1,2,3,2,2,2,2,2,0},
+    {0,1,5,2,1,0,0,0,1,2,3,1,5,5,5,5,0},
+    {0,2,5,2,2,1,1,1,1,2,3,1,5,1,1,1,0},
+    {0,5,5,5,5,0,0,0,0,2,3,1,5,1,7,2,0},
+    {0,5,5,5,5,0,0,0,0,2,3,1,5,1,2,2,0},
+    {0,1,1,2,2,1,1,1,0,2,3,1,5,5,5,5,0},
+    {0,1,1,2,2,0,0,2,0,2,3,1,1,1,1,1,0},
+    {0,1,1,2,2,0,0,6,0,1,3,3,3,3,3,3,0},
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 int gamemap[12][17]={
@@ -407,7 +409,17 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // Function is called first on GLFW_PRESS.
+    ISoundEngine* engine = createIrrKlangDevice();
+    if (!engine)
+    {
+        printf("Could not startup engine\n");
+    }
 
+    // To play a sound, we only to call play2D(). The second parameter
+    // tells the engine to play it looped.
+
+    // play some sound stream, looped
+    engine->play2D("irrKlang-64bit-1.5.0/media/jump.wav", false);
     if (action == GLFW_RELEASE) {
         switch (key) {
     case GLFW_KEY_UP:
@@ -508,6 +520,17 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 /* Executed for character input (like in text boxes) */
 void keyboardChar (GLFWwindow* window, unsigned int key)
 {
+    ISoundEngine* engine = createIrrKlangDevice();
+    if (!engine)
+    {
+        printf("Could not startup engine\n");
+    }
+
+    // To play a sound, we only to call play2D(). The second parameter
+    // tells the engine to play it looped.
+
+    // play some sound stream, looped
+    engine->play2D("irrKlang-64bit-1.5.0/media/jump.wav", false);
     switch (key) {
     case 'Q':
     case 'q':
@@ -1826,7 +1849,7 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         eye_x = 0+cos(45*M_PI/180);
         eye_z = 0;
         //+sin(45*M_PI/180);
-        eye_y=10;
+        eye_y=13;
         target_x=0;
         target_y=0;
         target_z=0;
@@ -1890,6 +1913,10 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         }
         if(mouse_click==1)
         {
+            orient_forward=0;
+            orient_left=0;
+            orient_backward=0;
+            orient_right=0;
             eye_x = temp1-5*cos((mouse_pos_x)*(160*M_PI)/(360*180.0f));
             eye_y = temp2;
             eye_z = temp3-5*sin((mouse_pos_x)*(160*M_PI)/(360*180.0f));
@@ -1938,6 +1965,10 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
         }
         if(mouse_click==1)
         {
+            orient_forward=0;
+            orient_left=0;
+            orient_backward=0;
+            orient_right=0;
             eye_x = temp1+3*cos((mouse_pos_x)*(160*M_PI)/(360*180.0f));
             eye_y = temp2;
             eye_z = temp3+3*sin((mouse_pos_x)*(160*M_PI)/(360*180.0f));
@@ -2365,76 +2396,161 @@ void draw (GLFWwindow* window,float x,float y,float w,float h,int doM, int doV, 
             {
                 if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==2)
                 {
-                    //quit(window);
-                    life--;
-                    cube["cube1"].x=6;
-                    cube["cube2"].x=6;
-                    cube["cube2"].z=-14;
-                    cube["cube1"].z=-14;
-                    cube["cube1"].y=0.25;
-                    cube["cube2"].y=2.25;
+	                if(cube["cube1"].y>-5)
+		        	{
+		        		roundi=1;
+		        		cube["cube1"].y-=0.1;
+		        		cube["cube2"].y-=0.1;
+		        	}
+		        	else
+		        	{
+		        		roundi=0;
+	                    life--;
+	                    bridge=0;
+	                    bridge1=0;
+	                    cube["cube1"].x=6;
+	                    cube["cube2"].x=6;
+	                    cube["cube2"].z=-14;
+	                    cube["cube1"].z=-14;
+	                    cube["cube1"].y=0.25;
+	                    cube["cube2"].y=2.25;
+	                }
                 }
             }
             else
             {
                 if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==2)
                 {
-                    //quit(window);
-                    life--;
-                    cube["cube1"].x=6;
-                    cube["cube2"].x=6;
-                    cube["cube2"].z=-14;
-                    cube["cube1"].z=-14;
-                    cube["cube1"].y=0.25;
-                    cube["cube2"].y=2.25;
+                    if(cube["cube1"].y>-5)
+		        	{
+		        		roundi=1;
+		        		cube["cube1"].y-=0.1;
+		        		cube["cube2"].y-=0.1;
+		        	}
+		        	else
+		        	{
+		        		roundi=0;
+	                    life--;
+	                    bridge=0;
+	                    bridge1=0;
+	                    cube["cube1"].x=6;
+	                    cube["cube2"].x=6;
+	                    cube["cube2"].z=-14;
+	                    cube["cube1"].z=-14;
+	                    cube["cube1"].y=0.25;
+	                    cube["cube2"].y=2.25;
+	                }
                 }
             }
         }
         if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==0 || (gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==3 && bridge==0) || (gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==5 && bridge1==0))
         {
             //quit(window);
-            life--;
-            cube["cube1"].x=6;
-            cube["cube2"].x=6;
-            cube["cube2"].z=-14;
-            cube["cube1"].z=-14;
-            cube["cube1"].y=0.25;
-            cube["cube2"].y=2.25;
+            if(cube["cube1"].y>-5)
+        	{
+        		roundi=1;
+        		cube["cube1"].y-=0.1;
+        		cube["cube2"].y-=0.1;
+        	}
+        	else
+        	{
+        		roundi=0;
+	            life--;
+	            bridge=0;
+	            bridge1=0;
+	            cube["cube1"].x=6;
+	            cube["cube2"].x=6;
+	            cube["cube2"].z=-14;
+	            cube["cube1"].z=-14;
+	            cube["cube1"].y=0.25;
+	            cube["cube2"].y=2.25;
+	        }
         }
         else if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==0 || (gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==3 && bridge==0) || (gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==5 && bridge1==0))
         {
             //quit(window);
-
-            life--;
-            cube["cube1"].x=6;
-            cube["cube2"].x=6;
-            cube["cube2"].z=-14;
-            cube["cube1"].z=-14;;
-
-            cube["cube1"].y=0.25;
-            cube["cube2"].y=2.25;
+        	if(cube["cube1"].y>-5)
+        	{
+        		roundi=1;
+        		cube["cube1"].y-=0.1;
+        		cube["cube2"].y-=0.1;
+        	}
+        	else
+        	{
+        		roundi=0;
+	            life--;
+	            bridge=0;
+	            bridge1=0;
+	            cube["cube1"].x=6;
+	            cube["cube2"].x=6;
+	            cube["cube2"].z=-14;
+	            cube["cube1"].z=-14;;
+	            cube["cube1"].y=0.25;
+	            cube["cube2"].y=2.25;
+	        }
+        }
+        if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==8 && gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==8)
+        {
+        	cube["cube1"].x=6;
+        	cube["cube1"].z=14;
+        	cube["cube2"].x=6;
+        	cube["cube2"].z=14;
         }
         if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==7 && gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==7)
         {
-            stage++;
-            cube["cube1"].x=6;
-            cube["cube2"].x=6;
-            cube["cube2"].z=-14;
-            cube["cube1"].z=-14;
-            cube["cube1"].y=0.25;
-            cube["cube2"].y=2.25;
-            moves=100;
+        	if(cube["cube1"].y>-5)
+        	{
+        		roundi=1;
+        		cube["cube1"].y-=0.1;
+        		cube["cube2"].y-=0.1;
+        	}
+        	else
+        	{
+	            stage++;
+	            roundi=0;
+	            cube["cube1"].x=6;
+	            cube["cube2"].x=6;
+	            cube["cube2"].z=-14;
+	            cube["cube1"].z=-14;
+	            cube["cube1"].y=0.25;
+	            cube["cube2"].y=2.25;
+	            moves=100;
+	            ISoundEngine* engine = createIrrKlangDevice();
+
+	            if (!engine)
+	            {
+	                printf("Could not startup engine\n");
+	            }
+
+	            // To play a sound, we only to call play2D(). The second parameter
+	            // tells the engine to play it looped.
+
+	            // play some sound stream, looped
+	            engine->play2D("irrKlang-64bit-1.5.0/media/bell.wav", false);
+	        }
         }
         else if(gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==7 || gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==7)
         {
             //quit(window);
-            life--;
-            cube["cube1"].x=6;
-            cube["cube2"].x=6;
-            cube["cube2"].z=-14;
-            cube["cube1"].z=-14;
-            cube["cube1"].y=0.25;
-            cube["cube2"].y=2.25;
+            if(cube["cube1"].y>-5)
+        	{
+        		roundi=1;
+        		cube["cube1"].y-=0.1;
+        		cube["cube2"].y-=0.1;
+        	}
+        	else
+        	{
+        		roundi=0;
+	            life--;
+	            bridge=0;
+	            bridge1=0;
+	            cube["cube1"].x=6;
+	            cube["cube2"].x=6;
+	            cube["cube2"].z=-14;
+	            cube["cube1"].z=-14;
+	            cube["cube1"].y=0.25;
+	            cube["cube2"].y=2.25;
+	        }
         }
     }
     if(gamemap[int(cube["cube1"].x/2)+6][int(cube["cube1"].z/2)+8]==6 || gamemap[int(cube["cube2"].x/2)+6][int(cube["cube2"].z/2)+8]==6)
@@ -2768,6 +2884,14 @@ void initGL (GLFWwindow* window, int width, int height)
                     createtile(e,0,coingold,coingold,coingold,gold,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
                 k++;            
             }  
+            if(gamemap1[i][j]==8)
+            {
+                string c="tile";
+                char d=k+'0';
+                string e=c+d;
+                createtile(e,0,grey,grey,grey,cloudwhite1,2*(i-6),-1,2*(j-8),0.5,2,2,"tile",0,i,j);
+                k++;
+            }  
         }
     }
     for(i=0;i<12;i++)
@@ -2882,14 +3006,15 @@ void initGL (GLFWwindow* window, int width, int height)
     createRectangle1("right2",0,color,color,0.05,-0.05,width1,height1,"score",0);
     createRectangle1("middle1",0,color,color,0,0.05,width1,height1,"score",0);
     createRectangle1("middle2",0,color,color,0,-0.05,width1,height1,"score",0);
-    createRectangle1("diagonal1",(atan(0.5)*180/M_PI),color,color,-0.025,0.05,width1/2,height1,"score",0);
-    createRectangle1("diagonal2",-(atan(0.5)*180/M_PI),color,color,0.025,0.05,width1/2,height1,"score",0);
-    createRectangle1("diagonal3",-(atan(0.5)*180/M_PI),color,color,-0.025,-0.05,width1/2,height1,"score",0);
-    createRectangle1("diagonal4",(atan(0.5)*180/M_PI),color,color,0.025,-0.05,width1/2,height1,"score",0);
+    createRectangle1("diagonal1",(atan(0.5)*180/M_PI),color,color,-0.025,0.05,width1,height1,"score",0);
+    createRectangle1("diagonal2",-(atan(0.5)*180/M_PI),color,color,0.025,0.05,width1,height1,"score",0);
+    createRectangle1("diagonal3",-(atan(0.5)*180/M_PI),color,color,-0.025,-0.05,width1,height1,"score",0);
+    createRectangle1("diagonal4",(atan(0.5)*180/M_PI),color,color,0.025,-0.05,width1,height1,"score",0);
     reshapeWindow (window, width, height);
 
     // Background color of the scene
     glClearColor (0.3f, 0.3f, 0.3f, 0.0f); // R, G, B, A
+    //glClearColor (skyblue1.r, skyblue1.g, skyblue1.b, 0.0f);
     glClearDepth (1.0f);
 
     glEnable (GL_DEPTH_TEST);
@@ -2903,6 +3028,28 @@ void initGL (GLFWwindow* window, int width, int height)
 int flag=1;
 int main (int argc, char** argv)
 {
+    ISoundEngine* engine = createIrrKlangDevice();
+    if (!engine)
+    {
+        printf("Could not startup engine\n");
+    }
+
+    // To play a sound, we only to call play2D(). The second parameter
+    // tells the engine to play it looped.
+
+    // play some sound stream, looped
+    engine->play2D("irrKlang-64bit-1.5.0/media/bell.wav", false);
+    //ISoundEngine* engine = createIrrKlangDevice();
+    if (!engine)
+    {
+        printf("Could not startup engine\n");
+    }
+
+    // To play a sound, we only to call play2D(). The second parameter
+    // tells the engine to play it looped.
+
+    // play some sound stream, looped
+    engine->play2D("irrKlang-64bit-1.5.0/media/e.wav", true);
     int width = 1000;
     int height = 600;
     rect_pos = glm::vec3(0, 0, 0);
